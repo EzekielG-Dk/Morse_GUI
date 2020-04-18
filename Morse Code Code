@@ -1,0 +1,64 @@
+import Tkinter as tk
+import RPi.GPIO as GPIO
+import time
+
+#setup window
+window = tk.Tk()
+window.title("Morse Code")
+
+#setup pin and variables
+yellow = 11
+
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(yellow, GPIO.OUT)
+
+alphabetDict = {'A':'.-', 'B':'-...', 'C':'-.-.', 
+		'D':'-..', 'E':'.', 'F':'..-.', 
+		'G':'--.', 'H':'....', 'I':'..', 
+		'J':'.---', 'K':'-.-', 'L':'.-..', 
+		'M':'--', 'N':'-.', 'O':'---', 
+		'P':'.--.', 'Q':'--.-', 'R':'.-.', 
+		'S':'...', 'T':'-', 'U':'..-', 
+		'V':'...-', 'W':'.--', 'X':'-..-', 
+		'Y':'-.--', 'Z':'--..'}
+
+#Function that runs the morse code
+def runMorse():
+	word = entryBox.get().upper()
+	if len(word) > 12:
+		print("To many characters entered (max 12)")
+		return
+	for character in word:
+		if character in alphabetDict:
+			letter = alphabetDict[character]
+			for x in letter:
+				if x == "-":
+					GPIO.output(yellow, GPIO.HIGH)
+					time.sleep(1.5)
+					GPIO.output(yellow, GPIO.LOW)
+				else:
+					GPIO.output(yellow, GPIO.HIGH)
+					time.sleep(0.5)
+					GPIO.output(yellow, GPIO.LOW)
+				time.sleep(0.5)
+			time.sleep(1)
+		else:
+			print("Unknown character entered")
+			return		
+
+#function that exits the program
+def exitProgram():
+	GPIO.cleanup()
+	window.quit()
+
+entryBox = tk.Entry(window)
+entryBox.grid(row = 0, column = 1)
+
+morseButton = tk.Button(window, text="Write in Morse", command = runMorse)
+morseButton.grid(row = 2, column = 1)
+
+#exit button drawn to the window
+exitButton = tk.Button(window, text="Exit", command = exitProgram)
+exitButton.grid(row = 3, column = 1)
+
+tk.mainloop()
